@@ -85,13 +85,9 @@ dotnet run --project App/LogiCore.App.csproj -- Docs/demo-input.txt
 | Паттерн | Где и как используется |
 | --- | --- |
 | Factory Method | Абстрактная `VehicleFactory` и конкретные фабрики создают типы машин; `CargoFactory` создаёт выбранный в CLI тип груза — [`VehicleFactory.cs`](./Domain/VehicleFactory.cs). |
-
 | Strategy | `DeliveryService` выбирает `StandardTariff` или `HeavyCargoTariff` по суммарному весу груза — [`TariffStrategies.cs`](./Domain/Strategies/TariffStrategies.cs), [`DeliveryService.cs`](./Domain/Services/DeliveryService.cs). |
-
 | Decorator | `InsuranceDecorator` и `PriorityDecorator` добавляют выбранные пользователем услуги к тарифной цене; этапы цены выводятся в CLI — [`DeliveryCostDecorators.cs`](./Domain/Decorators/DeliveryCostDecorators.cs). |
-
 | Singleton | `LogisticsSettings.Instance` предоставляет единый экземпляр настроек приложения — [`LogisticsSettings.cs`](./Domain/Common/LogisticsSettings.cs). |
-
 | Command | Каждая CLI-операция реализует `IConsoleCommand`; приложение хранит команды через общий интерфейс и запускает выбранную — [`ConsoleApplication.cs`](./App/Console/ConsoleApplication.cs), [`Commands/`](./App/Console/Commands). |
 | Observer | `ConsoleNotifier` и `EventFileLogger` подписываются на события `DeliveryService`; логгер записывает их в файл и отписывается после демо — [`ConsoleNotifier.cs`](./App/Console/Notifications/ConsoleNotifier.cs), [`EventFileLogger.cs`](./App/Console/Notifications/EventFileLogger.cs). |
 
