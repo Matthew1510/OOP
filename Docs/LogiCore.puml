@@ -1,0 +1,175 @@
+@startuml LogiCore
+!pragma layout smetana
+title LogiCore — диаграмма классов
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "LogiCore.Domain" {
+  enum OrderStatus {
+    Created
+    Assigned
+    InTransit
+    Delivered
+    Cancelled
+  }
+
+  enum VehicleState {
+    Free
+    InTransit
+    UnderMaintenance
+  }
+
+  struct RoutePoint
+  class Route
+  class Customer
+  class Order
+
+  abstract class Cargo
+  class StandardCargo
+  class PerishableCargo
+  class FragileCargo
+  class DangerousCargo
+  class OversizedCargo
+
+  interface ITemperatureSensitive
+  interface IInsurable
+
+  abstract class Vehicle
+  class Truck
+  class RefrigeratorTruck
+  class CargoPlane
+  class CargoShip
+  class DroneCourier <<sealed>>
+
+  class "InvalidOrderStateException" as InvalidOrderStateException
+  class LogisticsException
+  class CargoValidationException
+  class IncompatibleCargoException
+  class VehicleOverloadException
+}
+
+package "LogiCore.Domain.Common" {
+  interface IIdentifiable
+  interface "IValidator<Cargo>" as CargoValidator
+  interface "IValidator<IReadOnlyCollection<Cargo>>" as CargoCollectionValidator
+  interface "IReadOnlyRepository<T>" as IReadOnlyRepository
+  class ValidationResult
+  class LogisticsSettings <<Singleton>>
+}
+
+package "LogiCore.Domain.Collections" {
+  class "Repository<T>" as Repository
+}
+
+package "LogiCore.Domain.Services" {
+  class DeliveryService
+  class CargoCompatibilityValidator
+  class OrderCreatedEventArgs
+  class OrderStatusChangedEventArgs
+  class VehicleOverloadAttemptEventArgs
+  class DeliveryCompletedEventArgs
+  class LogisticsEventHandler <<delegate>>
+}
+
+package "LogiCore.Domain.Strategies" {
+  interface ITariffStrategy
+  class StandardTariff
+  class HeavyCargoTariff
+}
+
+package "LogiCore.Domain.Decorators" {
+  interface IDeliveryCostItem
+  class DeliveryCostItem
+  abstract class DeliveryCostDecorator
+  class InsuranceDecorator
+  class PriorityDecorator
+}
+
+package "LogiCore.Domain.Factories" {
+  abstract class VehicleFactory
+  class TruckFactory
+  class RefrigeratorTruckFactory
+  class CargoPlaneFactory
+  class CargoShipFactory
+  class DroneCourierFactory
+  class CargoFactory <<static>>
+}
+
+Cargo <|-- StandardCargo
+Cargo <|-- PerishableCargo
+Cargo <|-- FragileCargo
+Cargo <|-- DangerousCargo
+Cargo <|-- OversizedCargo
+ITemperatureSensitive <|.. PerishableCargo
+IInsurable <|.. Cargo
+
+Vehicle <|-- Truck
+Truck <|-- RefrigeratorTruck
+Vehicle <|-- CargoPlane
+Vehicle <|-- CargoShip
+Vehicle <|-- DroneCourier
+
+VehicleState <-- Vehicle : State
+OrderStatus <-- Order : Status
+IIdentifiable <|.. Customer
+IIdentifiable <|.. Order
+IIdentifiable <|.. Cargo
+IIdentifiable <|.. Vehicle
+
+Customer "1" o-- "0..*" Order : order history
+Order "1" o-- "0..*" Cargo : cargo
+Order --> "1" Route : route
+Order --> "0..1" Vehicle : assigned vehicle
+Route "1" *-- "1..*" RoutePoint : points
+
+CargoValidator <|.. CargoCompatibilityValidator
+CargoCollectionValidator <|.. CargoCompatibilityValidator
+IReadOnlyRepository <|.. Repository
+Repository o-- Vehicle : stores
+DeliveryService --> CargoCompatibilityValidator : validates
+DeliveryService --> Repository : fleet
+DeliveryService ..> Order : dispatches
+DeliveryService ..> ITariffStrategy : calculates tariff
+DeliveryService ..> IDeliveryCostItem : adds services
+
+ITariffStrategy <|.. StandardTariff
+ITariffStrategy <|.. HeavyCargoTariff
+IDeliveryCostItem <|.. DeliveryCostItem
+IDeliveryCostItem <|.. DeliveryCostDecorator
+DeliveryCostDecorator <|-- InsuranceDecorator
+DeliveryCostDecorator <|-- PriorityDecorator
+DeliveryCostDecorator o--> IDeliveryCostItem : decorates
+
+VehicleFactory <|-- TruckFactory
+VehicleFactory <|-- RefrigeratorTruckFactory
+VehicleFactory <|-- CargoPlaneFactory
+VehicleFactory <|-- CargoShipFactory
+VehicleFactory <|-- DroneCourierFactory
+VehicleFactory ..> Vehicle : creates
+CargoFactory ..> Cargo : creates
+LogisticsSettings ..> Truck
+LogisticsSettings ..> DroneCourier
+
+DeliveryService ..> OrderCreatedEventArgs : raises
+DeliveryService ..> OrderStatusChangedEventArgs : raises
+DeliveryService ..> VehicleOverloadAttemptEventArgs : raises
+DeliveryService ..> DeliveryCompletedEventArgs : raises
+DeliveryService ..> LogisticsEventHandler : events
+
+LogisticsException <|-- CargoValidationException
+LogisticsException <|-- IncompatibleCargoException
+LogisticsException <|-- VehicleOverloadException
+InvalidOperationException <|-- InvalidOrderStateException
+
+note right of CargoCompatibilityValidator
+  Checks expiration, mixed dangerous/perishable cargo,
+  vehicle compatibility, weight and volume limits.
+end note
+
+note bottom of Order
+  Allowed lifecycle:
+  Created -> Assigned -> InTransit -> Delivered
+  Created/Assigned -> Cancelled
+end note
+
+@enduml

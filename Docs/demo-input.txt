@@ -1,0 +1,43 @@
+interfaces
+vehicles
+create
+ООО Север
+dispatch@north.example
+1
+Партия оборудования
+1200
+3
+50000
+20
+15
+да
+да
+assign
+1
+1
+start
+1
+complete
+1
+create
+Магазин у дома
+store@example.test
+2
+Охлаждённые продукты
+200
+1
+5000
+31.12.2027
+4
+15
+10
+нет
+нет
+autochoose
+2
+start
+2
+complete
+2
+orders
+vehicles
