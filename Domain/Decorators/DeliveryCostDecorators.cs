@@ -5,7 +5,7 @@ namespace LogiCore.Domain.Decorators;
 /// <summary>
 /// Элемент стоимости доставки, участвующий в цепочке декораторов.
 /// </summary>
-public interface IDeliveryCostItem
+public interface IDeliveryCostItem// Component
 {
     /// <summary>
     /// Текстовое описание стоимости.
@@ -21,7 +21,7 @@ public interface IDeliveryCostItem
 /// <summary>
 /// Конкретный элемент стоимости доставки.
 /// </summary>
-public class DeliveryCostItem : IDeliveryCostItem
+public class DeliveryCostItem : IDeliveryCostItem// ConcreteComponent
 {
     public DeliveryCostItem(decimal total, string description){
         if (total < 0m)
@@ -47,7 +47,7 @@ public class DeliveryCostItem : IDeliveryCostItem
 /// <summary>
 /// Базовый декоратор для изменения стоимости доставки.
 /// </summary>
-public abstract class DeliveryCostDecorator : IDeliveryCostItem
+public abstract class DeliveryCostDecorator : IDeliveryCostItem// Decorator
 {
     /// <summary>
     /// Создаёт декоратор поверх другого элемента стоимости.
@@ -71,7 +71,7 @@ public abstract class DeliveryCostDecorator : IDeliveryCostItem
 /// <summary>
 /// Декоратор, добавляющий страхование к стоимости доставки.
 /// </summary>
-public sealed class InsuranceDecorator : DeliveryCostDecorator
+public sealed class InsuranceDecorator : DeliveryCostDecorator// ConcreteDecorator
 {
     private readonly decimal declaredValue;
     private readonly decimal rate;
@@ -98,7 +98,7 @@ public sealed class InsuranceDecorator : DeliveryCostDecorator
 /**
  * Декоратор, увеличивающий стоимость с учётом срочности доставки.
  */
-public sealed class PriorityDecorator : DeliveryCostDecorator
+public sealed class PriorityDecorator : DeliveryCostDecorator// ConcreteDecorator
 {
     private readonly decimal coefficient;
 

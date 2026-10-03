@@ -10,7 +10,7 @@ namespace LogiCore.Domain.Services;
 /// <summary>
 /// Валидатор, проверяющий совместимость грузов и соответствие правилам перевозки.
 /// </summary>
-public sealed class CargoCompatibilityValidator :
+public sealed class CargoCompatibilityValidator : // валидатор совместимости грузов
     IValidator<Cargo>,
     IValidator<IReadOnlyCollection<Cargo>>
 {
@@ -200,9 +200,7 @@ public sealed class DeliveryService
     public DeliveryService(
         IEnumerable<Vehicle> vehicles,
         CargoCompatibilityValidator? validator = null)
-        : this(CreateVehicleRepository(vehicles), validator)
-    {
-    }
+        : this(CreateVehicleRepository(vehicles), validator){}
 
     /// <summary>
     /// Создаёт сервис на основе существующего хранилища транспорта.
@@ -347,8 +345,7 @@ public sealed class DeliveryService
         }
 
         if (cheapestVehicle is null)
-            throw new VehicleOverloadException(
-                "Не найден подходящий свободный транспорт.");
+            throw new VehicleOverloadException("Не найден подходящий свободный транспорт.");
 
         OrderStatus previousStatus = order.Status;
         order.Assign(cheapestVehicle);
@@ -432,10 +429,7 @@ public sealed class DeliveryService
             handler(this,new OrderStatusChangedEventArgs(order, previousStatus, order.Status));
     }
 
-    private void RaiseVehicleOverloadAttempt(// событие попытки перегруза транспорта
-        Vehicle vehicle,
-        IReadOnlyCollection<Cargo> cargo)
-    {
+    private void RaiseVehicleOverloadAttempt(Vehicle vehicle, IReadOnlyCollection<Cargo> cargo){// событие попытки перегруза транспорта
         if (VehicleOverloadAttempt != null)
             VehicleOverloadAttempt(this, new VehicleOverloadAttemptEventArgs(vehicle, cargo));
     }

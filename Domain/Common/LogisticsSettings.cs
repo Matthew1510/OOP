@@ -2,8 +2,7 @@ namespace LogiCore.Domain.Common;
 
 public sealed class LogisticsSettings // настройки логистики
 {
-    private static readonly Lazy<LogisticsSettings> instance =
-        new Lazy<LogisticsSettings>(() => new LogisticsSettings());
+    private static readonly Lazy<LogisticsSettings> instance = new Lazy<LogisticsSettings>(() => new LogisticsSettings());
 
     private LogisticsSettings(){// приватный конструктор для реализации паттерна Singleton
         DefaultTollRoadCoefficient = 1.20m;

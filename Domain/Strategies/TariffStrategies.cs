@@ -21,19 +21,16 @@ public interface ITariffStrategy
 /// </summary>
 public sealed class StandardTariff : ITariffStrategy
 {
-    public string Name
-    {
+    public string Name{
         get { return "Обычный тариф"; }
     }
 
-    public decimal Calculate(decimal baseCost, Route route, IReadOnlyCollection<Cargo> cargo)
-    {
+    public decimal Calculate(decimal baseCost, Route route, IReadOnlyCollection<Cargo> cargo){
         ValidateInput(baseCost, route, cargo);
         return baseCost;
     }
 
-    private void ValidateInput(decimal baseCost, Route route, IReadOnlyCollection<Cargo> cargo)
-    {
+    private void ValidateInput(decimal baseCost, Route route, IReadOnlyCollection<Cargo> cargo){
         if (baseCost < 0m)
             throw new ArgumentOutOfRangeException(nameof(baseCost));
         if (route is null)

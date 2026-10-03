@@ -65,16 +65,14 @@ public sealed class ValidationResult
     /// <summary>
     /// Создаёт успешный результат проверки.
     /// </summary>
-    public static ValidationResult Valid()
-    {
+    public static ValidationResult Valid(){
         return new ValidationResult(true, null);
     }
 
     /// <summary>
     /// Создаёт результат проверки с ошибкой.
     /// </summary>
-    public static ValidationResult Invalid(Exception error)
-    {
+    public static ValidationResult Invalid(Exception error){
         if (error is null)
             throw new ArgumentNullException(nameof(error));
 
@@ -84,8 +82,7 @@ public sealed class ValidationResult
     /// <summary>
     /// Выбрасывает исключение, если валидация не прошла.
     /// </summary>
-    public void ThrowIfInvalid()
-    {
+    public void ThrowIfInvalid(){
         if (!IsValid)
             throw Error ?? new InvalidOperationException("Валидация завершилась ошибкой.");
     }
