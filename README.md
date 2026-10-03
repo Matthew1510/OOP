@@ -51,6 +51,7 @@ dotnet run --project App/LogiCore.App.csproj
 
 ```bash
 dotnet run --project App/LogiCore.App.csproj -- Docs/demo-input.txt
+dotnet App/bin/Debug/net9.0/LogiCore.App.dll Docs/demo-input.txt
 ```
 
 Этот короткий сценарий создаёт два заказа с разными типами грузов, показывает
