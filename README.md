@@ -50,7 +50,6 @@ dotnet run --project App/LogiCore.App.csproj
 из файла, передайте путь к нему аргументом приложения, например:
 
 ```bash
-dotnet run --project App/LogiCore.App.csproj -- Docs/demo-input.txt
 dotnet App/bin/Debug/net9.0/LogiCore.App.dll Docs/demo-input.txt
 ```
 
