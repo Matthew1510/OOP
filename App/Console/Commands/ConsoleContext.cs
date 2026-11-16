@@ -1,17 +1,18 @@
 using LogiCore.Domain;
 using LogiCore.Domain.Collections;
 using LogiCore.Domain.Services;
+using LogiCore.Domain.Strategies;
 using LogiCore.App.Console.Notifications;
 
 namespace LogiCore.App.Console.Commands;
 
 public sealed class ConsoleContext// контекст консоли
 {
-    public ConsoleContext(){
+    public ConsoleContext(IEnumerable<ITariffStrategy>? tariffStrategies = null){
         Customers = new Repository<Customer>();// список клиентов
         Vehicles = new Repository<Vehicle>();// список транспорта
         Orders = new Repository<Order>();// список заказов
-        DeliveryService = new DeliveryService(Vehicles);// сервис доставки
+        DeliveryService = new DeliveryService(Vehicles, tariffStrategies: tariffStrategies);// сервис доставки
         ConsoleNotifier = new ConsoleNotifier();
         ConsoleNotifier.Subscribe(DeliveryService);
         EventFileLogger = new EventFileLogger(

@@ -185,6 +185,7 @@ public sealed class DeliveryService
     private readonly Repository<Vehicle> vehicles;
     private readonly ITariffStrategy standardTariff;
     private readonly ITariffStrategy heavyCargoTariff;
+    private readonly List<ITariffStrategy> externalTariffs;
 
     /// <summary>
     /// Создаёт сервис с пустым парком транспортных средств.
@@ -199,16 +200,17 @@ public sealed class DeliveryService
     /// </summary>
     public DeliveryService(
         IEnumerable<Vehicle> vehicles,
-        CargoCompatibilityValidator? validator = null)
-        : this(CreateVehicleRepository(vehicles), validator){}
+        CargoCompatibilityValidator? validator = null,
+        IEnumerable<ITariffStrategy>? tariffStrategies = null)
+        : this(CreateVehicleRepository(vehicles), validator, tariffStrategies){}
 
     /// <summary>
     /// Создаёт сервис на основе существующего хранилища транспорта.
     /// </summary>
     public DeliveryService(
         Repository<Vehicle> vehicles,
-        CargoCompatibilityValidator? validator = null)
-    {
+        CargoCompatibilityValidator? validator = null,
+        IEnumerable<ITariffStrategy>? tariffStrategies = null){
         if (vehicles is null)
             throw new ArgumentNullException(nameof(vehicles));
 
@@ -216,6 +218,9 @@ public sealed class DeliveryService
         this.validator = validator ?? new CargoCompatibilityValidator();
         standardTariff = new StandardTariff();
         heavyCargoTariff = new HeavyCargoTariff();
+        externalTariffs = tariffStrategies is null
+            ? new List<ITariffStrategy>()
+            : new List<ITariffStrategy>(tariffStrategies);
     }
 
     /// <summary>
@@ -285,7 +290,7 @@ public sealed class DeliveryService
             throw new ArgumentNullException(nameof(vehicle));
 
         decimal vehicleCost = vehicle.CalculateDeliveryCost(order.Route, order.Cargo);
-        ITariffStrategy strategy = SelectTariff(order.Cargo);
+        ITariffStrategy strategy = SelectTariff(vehicleCost, order.Route, order.Cargo);
         decimal tariffCost = strategy.Calculate(vehicleCost, order.Route, order.Cargo);
         List<IDeliveryCostItem> steps = new List<IDeliveryCostItem>
         {
@@ -450,14 +455,28 @@ public sealed class DeliveryService
         return repository;
     }
 
-    private ITariffStrategy SelectTariff(IReadOnlyCollection<Cargo> cargo){// выбор стратегии тарифа в зависимости от состава груза
-        decimal totalWeight = 0m;
-        foreach (Cargo item in cargo)
-            totalWeight += item.WeightKg;
+    private ITariffStrategy SelectTariff(decimal baseCost, Route route, IReadOnlyCollection<Cargo> cargo){// выбор стратегии тарифа в зависимости от состава груза
+        List<ITariffStrategy> strategies = new List<ITariffStrategy>
+        {
+            standardTariff,
+            heavyCargoTariff
+        };
+        strategies.AddRange(externalTariffs);
 
-        if (totalWeight > 1000m)
-            return heavyCargoTariff;
-        return standardTariff;
+        ITariffStrategy selectedStrategy = strategies[0];
+        decimal selectedCost = selectedStrategy.Calculate(baseCost, route, cargo);
+
+        foreach (ITariffStrategy strategy in strategies.Skip(1))
+        {
+            decimal candidateCost = strategy.Calculate(baseCost, route, cargo);
+            if (candidateCost < selectedCost)
+            {
+                selectedStrategy = strategy;
+                selectedCost = candidateCost;
+            }
+        }
+
+        return selectedStrategy;
     }
 
     private static decimal CalculateDeclaredValue(IReadOnlyCollection<Cargo> cargo){// расчет объявленной стоимости груза

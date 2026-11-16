@@ -4,6 +4,7 @@ using System.IO;
 using LogiCore.App.Console.Commands;
 using LogiCore.Domain;
 using LogiCore.Domain.Factories;
+using LogiCore.Domain.Strategies;
 
 namespace LogiCore.App.Console;
 
@@ -11,8 +12,8 @@ public sealed class ConsoleApplication{
     private readonly ConsoleContext context;
     private readonly List<IConsoleCommand> commands;
 
-    public ConsoleApplication(){// инициализация приложения
-        context = new ConsoleContext();// создание контекста
+    public ConsoleApplication(IEnumerable<ITariffStrategy>? tariffStrategies = null){// инициализация приложения
+        context = new ConsoleContext(tariffStrategies);// создание контекста
         AddInitialVehicles();
         commands = new List<IConsoleCommand>// команды 
         {

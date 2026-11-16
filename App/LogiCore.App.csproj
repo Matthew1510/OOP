@@ -9,10 +9,19 @@
 
   <ItemGroup>
     <ProjectReference Include="../Domain/LogiCore.Domain.csproj" />
+    <ProjectReference Include="../Plugins/LogiCore.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../Docs/demo-input.txt" Link="demo-input.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="CopyPluginAssemblies" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)plugins" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\Plugins\bin\$(Configuration)\net9.0\LogiCore.Plugins.dll"
+          DestinationFolder="$(OutDir)plugins"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(MSBuildThisFileDirectory)..\Plugins\bin\$(Configuration)\net9.0\LogiCore.Plugins.dll')" />
+  </Target>
 
 </Project>
